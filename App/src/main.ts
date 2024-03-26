@@ -105,42 +105,49 @@ function onMouseMove(event: MouseEvent) {
     raycast();
 }
 
-// Variável para controlar se o botão já foi clicado
-let buttonClicked = false;
+let originalMaterial: THREE.Material | null = null;
+let INTERSECTED: any = null;
 
-// Raycasting function
 function raycast() {
     raycaster.setFromCamera(mouse, camera); 
 
-    window.addEventListener('mousedown', () => {
-    mouseDown = true;
-});
-
-    const intersects: THREE.Intersection[] = raycaster.intersectObjects(scene.children, true);
+    const intersects = raycaster.intersectObjects(scene.children, true);
 
     if (intersects.length > 0) {
         // Se o raio interseccionar com um objeto
-        const object: THREE.Object3D = intersects[0].object;
+        const object = intersects[0].object;
 
         // Verificar se o objeto é um botão
         if (object.userData && object.userData.isButton) {
-            
-            // Verificar se o botão já foi clicado para evitar o alerta repetido
-            if (!buttonClicked) {
-                // Marcar o botão como clicado
-                buttonClicked = true;
+            if (INTERSECTED !== object) {
+                if (INTERSECTED) {
+                    // Restaurar o material original do objeto anteriormente interseccionado
+                    INTERSECTED.material = originalMaterial;
+                }
 
-                // Executar ação desejada (por exemplo, mostrar um alerta) ao clicar no botão
-                alert(buttons_dictionary[object.name]);
-                
+                // Salvar o material original do objeto interseccionado
+                originalMaterial = object.material;
+
+                // Criar um novo material com a cor desejada para o objeto interseccionado
+                const newMaterial = new THREE.MeshBasicMaterial({ color: 0xAD9A96 });
+
+                // Aplicar o novo material ao objeto interseccionado
+                INTERSECTED = object;
+                INTERSECTED.material = newMaterial;
             }
         } else {
-            // Resetar o estado do botão clicado quando não estiver sobre o botão
-            buttonClicked = false;
+            // Se o objeto não é um botão, restaurar o material original do objeto anteriormente interseccionado
+            if (INTERSECTED) {
+                INTERSECTED.material = originalMaterial;
+                INTERSECTED = null;
+            }
         }
     } else {
-        // Resetar o estado do botão clicado quando não houver interseção
-        buttonClicked = false;
+        // Se não há interseção, restaurar o material original do objeto anteriormente interseccionado
+        if (INTERSECTED) {
+            INTERSECTED.material = originalMaterial;
+            INTERSECTED = null;
+        }
     }
 }
 
