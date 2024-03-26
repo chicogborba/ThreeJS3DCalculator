@@ -1,17 +1,53 @@
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Importe o GLTFLoader a partir do local correto
+
 import * as THREE from 'three';
-import './style.css'
+import './style.css';
 //@ts-ignore
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import gsap from "gsap";
 
 // Scene
 const scene = new THREE.Scene();
 
-// Create our Sphere
-const geometry = new THREE.SphereGeometry(3, 64, 64);
-const material = new THREE.MeshStandardMaterial({ color: "#00ff83" , roughness: 0.5});
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
+
+
+const buttons_dictionary: { [key: string]: string }  = {
+    "mesh2058303266": "7",
+    "mesh502161026": "8",
+    "mesh1297306164_1": "9",
+    "mesh1587545857_1": "4",
+    "mesh1020324790_1": "5",
+    "mesh318797025_1": "6",
+    "mesh1296408862_1": "1",
+    "group1730796089": "2",
+    "group293917853": "3",
+    "mesh2033548222_1": "00",
+    "group1280017540": "0",
+    "group454468518": ".",
+    "group1294525603": "/",
+    "group389477461": "-",
+    "group23065195": "+="
+}
+
+// Instantiate a loader
+const loader = new GLTFLoader();
+
+let raycaster: THREE.Raycaster;
+
+// Load the GLB model
+loader.load('./src/model.glb', (gltf) => {
+    gltf.scene.traverse((child) => {
+        if (buttons_dictionary[child.name]) {
+            child.userData.isButton = true;
+        }
+    });
+
+    gltf.scene.scale.set(5, 5, 5);
+    scene.add(gltf.scene);
+});
+
+
+raycaster = new THREE.Raycaster();
 
 // Sizes
 const sizes = {
@@ -26,13 +62,11 @@ scene.add(light);
 
 // Enable shadows
 light.castShadow = true;
-sphere.castShadow = true;
-sphere.receiveShadow = true;
 
 // Configure shadows
 light.shadow.mapSize.width = 1024;
 light.shadow.mapSize.height = 1024;
-light.shadow.camera.near = 0.5;
+light.shadow.camera.near = 0.1;
 light.shadow.camera.far = 50;
 
 // Camera
@@ -49,14 +83,66 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(2);
 renderer.render(scene, camera);
 
+
 // Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enableZoom = false;
 controls.enablePan = false;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 5;
 
+
+// Raycaster
+raycaster = new THREE.Raycaster();
+
+// Mouse movement
+const mouse: THREE.Vector2 = new THREE.Vector2();
+document.addEventListener('mousemove', onMouseMove);
+
+function onMouseMove(event: MouseEvent) {
+    mouse.x = (event.clientX / sizes.width) * 2 - 1;
+    mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+
+    raycast();
+}
+
+// Variável para controlar se o botão já foi clicado
+let buttonClicked = false;
+
+// Raycasting function
+function raycast() {
+    raycaster.setFromCamera(mouse, camera); 
+
+    window.addEventListener('mousedown', () => {
+    mouseDown = true;
+});
+
+    const intersects: THREE.Intersection[] = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        // Se o raio interseccionar com um objeto
+        const object: THREE.Object3D = intersects[0].object;
+
+        // Verificar se o objeto é um botão
+        if (object.userData && object.userData.isButton) {
+            
+            // Verificar se o botão já foi clicado para evitar o alerta repetido
+            if (!buttonClicked) {
+                // Marcar o botão como clicado
+                buttonClicked = true;
+
+                // Executar ação desejada (por exemplo, mostrar um alerta) ao clicar no botão
+                alert(buttons_dictionary[object.name]);
+                
+            }
+        } else {
+            // Resetar o estado do botão clicado quando não estiver sobre o botão
+            buttonClicked = false;
+        }
+    } else {
+        // Resetar o estado do botão clicado quando não houver interseção
+        buttonClicked = false;
+    }
+}
 
 // Resize
 window.addEventListener('resize', () => {
@@ -68,41 +154,25 @@ window.addEventListener('resize', () => {
     camera.aspect = sizes.width / sizes.height;
     camera.updateProjectionMatrix();
     renderer.setSize(sizes.width, sizes.height);
-})
+});
+
 const loop = () => {
-  controls.update();
-  renderer.render(scene, camera);
-  window.requestAnimationFrame(loop);
+    controls.update();
+    renderer.render(scene, camera);
+    window.requestAnimationFrame(loop);
 };
 loop();
 
-//Timeline
+// Timeline
 const tl = gsap.timeline({ defaults: { duration: 1 } });
-tl.fromTo( sphere.scale, { z: 0 , x: 0, y: 0}, { z: 1, x: 1, y: 1} );
-tl.fromTo('nav', {y: "-100%"}, { y: "0%"})
-tl.fromTo( '.title', { opacity: 0 }, { opacity: 1 });
-
+tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
 
 // Mouse animation color
 let mouseDown = false;
-let rgb = [0, 0, 0];
 window.addEventListener('mousedown', () => {
     mouseDown = true;
-})
+});
 window.addEventListener('mouseup', () => {
     mouseDown = false;
-})
-
-window.addEventListener('mousemove', (e) => {
-    if(mouseDown) {
-      rgb = [ 
-        Math.round(e.pageX / sizes.width * 255),
-        Math.round(e.pageY / sizes.height * 255),
-        150,
-      ]
-      // Animate color
-      let newColor = new THREE.Color(`rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
-      gsap.to(sphere.material.color, newColor);
-    }
-})
+});
 
