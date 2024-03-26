@@ -128,8 +128,16 @@ function raycast() {
                 // Salvar o material original do objeto interseccionado
                 originalMaterial = object.material;
 
+                if (originalMaterial)
+                var copyOfOriginal = originalMaterial.clone()
+
+                // get original color from original material and make it brighter
+                if (copyOfOriginal)
+                copyOfOriginal.color.setRGB(originalMaterial.color.r + 0.5, originalMaterial.color.g + 0.5, originalMaterial.color.b + 0.5)
+
+
                 // Criar um novo material com a cor desejada para o objeto interseccionado
-                const newMaterial = new THREE.MeshBasicMaterial({ color: 0xAD9A96 });
+                const newMaterial = copyOfOriginal
 
                 // Aplicar o novo material ao objeto interseccionado
                 INTERSECTED = object;
