@@ -10,3 +10,4 @@ ThreeJS é uma biblioteca JavaScript de código aberto que simplifica a criaçã
 
 - Operações básicas de uma calculadora (adição, subtração, divisão).
 - Modelo 3D interativo.
+- Controles para rotação do modelo 3D a partir do movimento do mouse
