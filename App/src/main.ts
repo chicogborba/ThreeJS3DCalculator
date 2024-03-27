@@ -1,4 +1,5 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Importe o GLTFLoader a partir do local correto
+import TWEEN from '@tweenjs/tween.js'
 
 import * as THREE from 'three';
 import './style.css';
@@ -8,6 +9,8 @@ import gsap from "gsap";
 
 // Scene
 const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x0e67c7);
 
 
 
@@ -56,9 +59,13 @@ const sizes = {
 }
 
 // Light
-const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(0, 10, 10);
-scene.add(light);
+const light = new THREE.PointLight(0xffffff, 0.5, 200);
+light.position.set(0, 10, -10);
+scene.add(light)
+
+// Ambient light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+scene.add(ambientLight);
 
 // Enable shadows
 light.castShadow = true;
@@ -105,7 +112,7 @@ function onMouseMove(event: MouseEvent) {
     raycast();
 }
 
-let originalMaterial: THREE.Material | null = null;
+let originalMaterial: any = null;
 let INTERSECTED: any = null;
 
 function raycast() {
@@ -115,10 +122,12 @@ function raycast() {
 
     if (intersects.length > 0) {
         // Se o raio interseccionar com um objeto
-        const object = intersects[0].object;
+        const object: any = intersects[0].object;
 
         // Verificar se o objeto é um botão
         if (object.userData && object.userData.isButton) {
+
+
             if (INTERSECTED !== object) {
                 if (INTERSECTED) {
                     // Restaurar o material original do objeto anteriormente interseccionado
@@ -159,6 +168,59 @@ function raycast() {
     }
 }
 
+let isMovedDown = false;
+
+window.addEventListener('mousedown', () => {
+    raycast();
+    if (INTERSECTED && !isMovedDown) {
+        const button = buttons_dictionary[INTERSECTED.name];
+        // mover o Intersected para baixo no eixo y usando 
+        // Tween
+        const tween = new TWEEN.Tween(INTERSECTED.position)
+            .to({ y: INTERSECTED.position.y - 0.05 }, 100)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+
+        isMovedDown = true;
+
+        // Tween update
+        const update = () => {
+            renderer.render(scene, camera);
+            TWEEN.update();
+            window.requestAnimationFrame(update);
+        };
+
+        update();
+        
+
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    if (INTERSECTED && isMovedDown) {
+        // mover o Intersected para cima no eixo y usando 
+        // Tween
+        const tween = new TWEEN.Tween(INTERSECTED.position)
+            .to({ y: INTERSECTED.position.y + 0.05 }, 100)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+
+        isMovedDown = false;
+
+        // Tween update
+
+        const update = () => {
+            renderer.render(scene, camera);
+            TWEEN.update();
+            window.requestAnimationFrame(update);
+        };
+
+        update();
+
+
+    }
+});
+
 // Resize
 window.addEventListener('resize', () => {
     // Update sizes
@@ -181,13 +243,3 @@ loop();
 // Timeline
 const tl = gsap.timeline({ defaults: { duration: 1 } });
 tl.fromTo('.title', { opacity: 0 }, { opacity: 1 });
-
-// Mouse animation color
-let mouseDown = false;
-window.addEventListener('mousedown', () => {
-    mouseDown = true;
-});
-window.addEventListener('mouseup', () => {
-    mouseDown = false;
-});
-
