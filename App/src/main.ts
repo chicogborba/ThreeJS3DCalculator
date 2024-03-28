@@ -32,6 +32,24 @@ const buttons_dictionary: { [key: string]: string }  = {
     "group23065195": "+="
 }
 
+const buttons_numbers: { [key: string]: Array<string> } = {
+    "7": ["mesh2058303266_1"],
+    "8": ["mesh502161026_1"],
+    "9": ["mesh1297306164"],
+    "4": ["mesh1587545857"],
+    "5": ["mesh1020324790"],
+    "6": ["mesh318797025"],
+    "1": ["mesh1296408862"],
+    "2": ["group51909272", "group2060062126", "group450101333", "group991849902", "group1455072456"],
+    "3": ["group1621648348", "group1303773984", "group1370157279", "group1454253446"],
+    "00": ["mesh2033548222"],
+    "0": ["group1011208216", "group1814558664", "group1638635107", "group901693912"],
+    ".": ["group1105652737"],
+    "/": ["group8797649", "group1752570532", "group1173938501"],
+    "-": ["group1643812943"],
+    "+=": ["group133655897", "group1271219890", "group466515903", "group836615341"]
+};
+
 // Instantiate a loader
 const loader = new GLTFLoader();
 
@@ -45,7 +63,7 @@ loader.load('./src/model.glb', (gltf) => {
         }
     });
 
-    gltf.scene.scale.set(5, 5, 5);
+    gltf.scene.scale.set(6, 6, 6);
     scene.add(gltf.scene);
 });
 
@@ -116,6 +134,8 @@ let originalMaterial: any = null;
 let INTERSECTED: any = null;
 
 function raycast() {
+
+
     raycaster.setFromCamera(mouse, camera); 
 
     const intersects = raycaster.intersectObjects(scene.children, true);
@@ -127,7 +147,7 @@ function raycast() {
         // Verificar se o objeto é um botão
         if (object.userData && object.userData.isButton) {
 
-
+            const buttonBody = buttons_numbers[buttons_dictionary[object.name]];
             if (INTERSECTED !== object) {
                 if (INTERSECTED) {
                     // Restaurar o material original do objeto anteriormente interseccionado
@@ -142,7 +162,7 @@ function raycast() {
 
                 // get original color from original material and make it brighter
                 if (copyOfOriginal)
-                copyOfOriginal.color.setRGB(originalMaterial.color.r + 0.5, originalMaterial.color.g + 0.5, originalMaterial.color.b + 0.5)
+                copyOfOriginal.color.setRGB(originalMaterial.color.r + 0.3, originalMaterial.color.g + 0.3, originalMaterial.color.b + 0.3)
 
 
                 // Criar um novo material com a cor desejada para o objeto interseccionado
@@ -171,52 +191,51 @@ function raycast() {
 let isMovedDown = false;
 
 window.addEventListener('mousedown', () => {
-    raycast();
     if (INTERSECTED && !isMovedDown) {
         const button = buttons_dictionary[INTERSECTED.name];
-        // mover o Intersected para baixo no eixo y usando 
+        // mover o Intersected e os buttons_numbers para baixo no eixo y usando 
         // Tween
         const tween = new TWEEN.Tween(INTERSECTED.position)
-            .to({ y: INTERSECTED.position.y - 0.05 }, 100)
+            .to({ y: - 0.05 }, 100)
             .easing(TWEEN.Easing.Quadratic.Out)
             .start();
 
+        const buttons = buttons_numbers[button];
+        buttons.forEach((button) => {
+            const object: any = scene.getObjectByName(button);
+            const tween = new TWEEN.Tween(object.position)
+                .to({ y: - 0.05 }, 100)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+        });
+
+
         isMovedDown = true;
-
-        // Tween update
-        const update = () => {
-            renderer.render(scene, camera);
-            TWEEN.update();
-            window.requestAnimationFrame(update);
-        };
-
-        update();
-        
 
     }
 });
 
 window.addEventListener('mouseup', () => {
     if (INTERSECTED && isMovedDown) {
-        // mover o Intersected para cima no eixo y usando 
+        // mover o Intersected e os buttons_numbers para cima no eixo y usando 
         // Tween
         const tween = new TWEEN.Tween(INTERSECTED.position)
-            .to({ y: INTERSECTED.position.y + 0.05 }, 100)
+            .to({ y: 0 }, 100)
             .easing(TWEEN.Easing.Quadratic.Out)
             .start();
 
+        const button = buttons_dictionary[INTERSECTED.name];
+        const buttons = buttons_numbers[button];
+        buttons.forEach((button) => {
+            const object: any = scene.getObjectByName(button);
+            const tween = new TWEEN.Tween(object.position)
+                .to({ y: 0 }, 100)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+        });
+
+
         isMovedDown = false;
-
-        // Tween update
-
-        const update = () => {
-            renderer.render(scene, camera);
-            TWEEN.update();
-            window.requestAnimationFrame(update);
-        };
-
-        update();
-
 
     }
 });
@@ -236,6 +255,7 @@ window.addEventListener('resize', () => {
 const loop = () => {
     controls.update();
     renderer.render(scene, camera);
+    TWEEN.update();
     window.requestAnimationFrame(loop);
 };
 loop();
