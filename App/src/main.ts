@@ -33,8 +33,10 @@ loader.load('./src/model.glb', (gltf) => {
     });
     
     gltf.scene.scale.set(6, 6, 6);
+    gltf.scene.rotation.y = Math.PI;
     scene.add(gltf.scene);
 });
+
 
 
 
@@ -194,11 +196,60 @@ window.addEventListener('resize', () => {
 
 
 
+// Função para atualizar o texto no canvas
+function updateTextOnCanvas(text: string) {
+    const canvas_texture: HTMLCanvasElement = document.createElement('canvas');
+    canvas_texture.width = 512; // Aumente a resolução do canvas conforme necessário
+    canvas_texture.height = 256;
+    const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
+    if (context) {
+        // cor de fundo do canvas
+        context.font = 'bold 150px "VT323"'; // Tamanho da fonte maior
+        context.fillStyle = '#4AF626'; // Cor do texto
+
+        // Calcula a largura do texto
+        const textWidth = context.measureText(text).width;
+
+        // Define a posição x para alinhar o texto à direita do canvas
+        const x = canvas_texture.width - textWidth - 10; // 10 pixels de margem à direita
+
+        // Centraliza verticalmente
+        const y = (canvas_texture.height / 2) + 40;
+
+        // Desenha o texto
+        context.fillText(text, x, y);
+    }
+
+    return canvas_texture;
+}
+
+// Função para atualizar dinamicamente a textura do material com base no texto atualizado no canvas
+function updateTextureWithText(text: string) {
+    const texture = new THREE.Texture(updateTextOnCanvas(text));
+    texture.needsUpdate = true;
+    return texture;
+}
+
+// Atualiza o texto inicial
+let currentText = 'Initial Text';
+let material = new THREE.MeshBasicMaterial({
+    map: updateTextureWithText(currentText), // Cria uma textura inicial com o texto atual
+    side: THREE.FrontSide,
+});
+material.transparent = true;
+let mesh = new THREE.Mesh(new THREE.PlaneGeometry(5.2,1.2), material);
+mesh.position.set(0, 0, -3.75);
+mesh.rotation.x = -120.26;
+scene.add(mesh);
+
+
 
 
 
 const loop = () => {
     controls.update();
+    currentText = calculator.getScreenText();
+    material.map = updateTextureWithText(currentText);
     renderer.render(scene, camera);
     TWEEN.update();
     window.requestAnimationFrame(loop);
