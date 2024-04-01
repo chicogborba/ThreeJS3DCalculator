@@ -179,6 +179,9 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enableZoom = true;
 controls.enablePan = false;
+controls.target.set(0, 0, 0); // Define o ponto de interesse inicial para onde a câmera estará olhando
+// definir o angulo inicial da câmera
+controls.maxPolarAngle = 0.8;
 
 
 
