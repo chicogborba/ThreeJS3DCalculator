@@ -118,15 +118,23 @@ function raycast() {
     } 
 }
 
+// Adicione um plano como chão
+// const planeGeometry = new THREE.PlaneGeometry(500, 500, 10, 10); // Largura e altura suficientemente grandes
+// const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, side: THREE.DoubleSide }); // Cor cinza para o chão
+// const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+// planeMesh.position.y = -10; // Posicione o plano abaixo do modelo 3D
+// planeMesh.rotation.x = -Math.PI / 2; // Rotacionar o plano para que fique paralelo ao eixo X
+// scene.add(planeMesh);
+
 // Função para atualizar o texto no canvas
 function updateTextOnCanvas(text: string) {
     const canvas_texture: HTMLCanvasElement = document.createElement('canvas');
     canvas_texture.width = 512; // Aumente a resolução do canvas conforme necessário
-    canvas_texture.height = 256;
+    canvas_texture.height = 156;
     const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
     if (context) {
         // cor de fundo do canvas
-        context.font = 'bold 90px "Workbench"'; // Tamanho da fonte maior
+        context.font = 'bold 70px "Workbench"'; // Tamanho da fonte maior
         context.fillStyle = '#4AF626'; // Cor do texto
 
         // Calcula a largura do texto

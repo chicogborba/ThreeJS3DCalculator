@@ -1,4 +1,4 @@
-export type calculatorButtons = "7" | "8" | "9" | "4" | "5" | "6" | "1" | "2" | "3" | "00" | "0" | "." | "/" | "-" | "+=";
+export type calculatorButtons = "7" | "8" | "9" | "4" | "5" | "6" | "1" | "2" | "3" | "00" | "0" | "." | "/" | "-" | "=";
 
 export class Calculator {
 
@@ -8,7 +8,7 @@ export class Calculator {
   buttonClick(button: calculatorButtons) {
     if( this.screenText !== "0") {
       if(this.screenText.length <= 10) {
-        if(button == "+=") {
+        if(button == "=") {
           this.screenText = this.getResult().toString();
         } else {
           this.screenText += button;

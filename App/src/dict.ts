@@ -15,7 +15,11 @@ export const buttons_dictionary: { [key: string]: string }  = {
     "group454468518": ".",
     "group1294525603": "/",
     "group389477461": "-",
-    "group23065195": "+="
+    "group23065195": "=",
+    "group1294525603001": "x",
+    "group389477461001": "+",
+    "group389477461003": "C",
+    "group389477461002": "CE",
 }
 
 // Dicionario para mapear os numeros em cima dos botões
@@ -35,5 +39,10 @@ export const buttons_numbers: { [key: string]: Array<string> } = {
     ".": ["group1105652737"],
     "/": ["group8797649", "group1752570532", "group1173938501"],
     "-": ["group1643812943"],
-    "+=": ["group133655897", "group1271219890", "group466515903", "group836615341"]
+    "=": ["group466515903", "group836615341"],
+    "x": ["group1271219890001", "group1271219890002"],
+    "+": ["group1271219890003", "group133655897001"],
+    "C": ["group1011208216003", "group901693912007", "group901693912006"],
+    "CE": ["group1011208216001", "group901693912001", "group901693912002", "group1011208216002", "group901693912003", "group901693912005", "group901693912004"],
+
 };
