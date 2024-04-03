@@ -25,6 +25,10 @@ export class Calculator {
     return this.screenText;
   }
 
+  setScreenText(text: string) {
+    this.screenText = text;
+  }
+  
   getResult() {
     return eval(this.screenText);
   }

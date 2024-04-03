@@ -44,5 +44,19 @@ export const buttons_numbers: { [key: string]: Array<string> } = {
     "+": ["group1271219890003", "group133655897001"],
     "C": ["group1011208216003", "group901693912007", "group901693912006"],
     "CE": ["group1011208216001", "group901693912001", "group901693912002", "group1011208216002", "group901693912003", "group901693912005", "group901693912004"],
-
 };
+
+
+// other components of the calculator with animations and functionalities
+// different from the numbers and operators
+export const other_objs: { [key: string]: string } = {
+    "mesh1536966674_1" :"on/off",
+    "group1695896375": "slider"
+}
+
+export const LEDs : { [key: string]: string } = {
+    "group349876400": "red_led",
+    "group1099422973" : "first_green_led",
+    "group1737963207" : "second_green_led",
+}
+

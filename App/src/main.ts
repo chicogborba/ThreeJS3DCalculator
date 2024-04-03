@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import './style.css';
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import {buttons_dictionary, buttons_numbers} from "./dict.ts"
+import {LEDs, buttons_dictionary, buttons_numbers, other_objs} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
 
 
@@ -12,7 +12,12 @@ import { Calculator, calculatorButtons } from "./calculator.ts";
 
 const calculator = new Calculator();
 
-let glbModelPath = './src/model4.glb';
+let textColor = '#4AF626';
+// maxSize 100 - minSize 40
+let textSize = 70;
+let isOn = false
+let textFont = 'bold ' + textSize + 'px ' + "Workbench"
+let glbModelPath = './src/model6.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
 let isMovedDown = false;
@@ -26,8 +31,19 @@ const sizes = {
     height: window.innerHeight
 }
 
-scene.background = new THREE.Color(0x0e67c7);
 
+// Configuração da texto
+let textMaterial = new THREE.MeshBasicMaterial({
+    map: updateTextureWithText(displayText), 
+    side: THREE.FrontSide,
+});
+textMaterial.transparent = true;
+let textMesh = new THREE.Mesh(new THREE.PlaneGeometry(8.8,1.2), textMaterial);
+textMesh.position.set(0, 0, -3.75);
+textMesh.rotation.x = -120.26;
+scene.add(textMesh);
+
+scene.background = new THREE.Color(0x0e67c7);
 loader.load(glbModelPath, loadModel);
 
 
@@ -81,8 +97,17 @@ function loop() {
     controls.update();
     controls.maxPolarAngle = 360;
     controls.update();
-    displayText = calculator.getScreenText();
-    material.map = updateTextureWithText(displayText);
+    if(isOn) {
+        displayText = calculator.getScreenText();
+        textMaterial.map = updateTextureWithText(displayText);
+        if(displayText == "")
+        calculator.setScreenText("0");
+    }
+    if(!isOn) {
+        displayText = '';
+        calculator.setScreenText(displayText);
+        textMaterial.map = updateTextureWithText(displayText);
+    }
     renderer.render(scene, camera);
     TWEEN.update();
     window.requestAnimationFrame(loop);
@@ -94,6 +119,12 @@ function loadModel(gltf: GLTF){
         if (buttons_dictionary[child.name]) {
             child.userData.isButton = true;
             child.userData.value = buttons_dictionary[child.name];
+        }
+        if(other_objs[child.name]) {
+            child.userData.isOtherObj = true;
+        }
+        if(LEDs[child.name]) {
+            child.userData.isLED = true;
         }
     });
     
@@ -109,8 +140,9 @@ function raycast() {
     const intersects = raycaster.intersectObjects(scene.children, true);
     if (intersects.length > 0) {
         const object: any = intersects[0].object;
-        if (object.userData && object.userData.isButton) {
-            addSelectedColorEffect( object );
+        if (object.userData && (object.userData.isButton || object.userData.isOtherObj)) {
+
+                addSelectedColorEffect( object );
         } else if(INTERSECTED) {
                 INTERSECTED.material = originalMaterial;
                 INTERSECTED = null;
@@ -134,8 +166,8 @@ function updateTextOnCanvas(text: string) {
     const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
     if (context) {
         // cor de fundo do canvas
-        context.font = 'bold 70px "Workbench"'; // Tamanho da fonte maior
-        context.fillStyle = '#4AF626'; // Cor do texto
+        context.font = textFont; // Tamanho da fonte maior
+        context.fillStyle = textColor; // Cor do texto
 
         // Calcula a largura do texto
         const textWidth = context.measureText(text).width;
@@ -158,16 +190,6 @@ function updateTextureWithText(text: string) {
     texture.needsUpdate = true;
     return texture;
 }
-
-let material = new THREE.MeshBasicMaterial({
-    map: updateTextureWithText(displayText), 
-    side: THREE.FrontSide,
-});
-material.transparent = true;
-let mesh = new THREE.Mesh(new THREE.PlaneGeometry(8.8,1.2), material);
-mesh.position.set(0, 0, -3.75);
-mesh.rotation.x = -120.26;
-scene.add(mesh);
 
 
 function addSelectedColorEffect(object: any) {
@@ -198,7 +220,8 @@ function addSelectedColorEffect(object: any) {
 }
 
 function onMouseDown(){
-        if (INTERSECTED && !isMovedDown) {
+        onONOFFChange();
+        if (INTERSECTED && !isMovedDown && INTERSECTED.userData.isButton) {
 
         const button_value: calculatorButtons = INTERSECTED.userData.value;
         calculator.buttonClick(button_value);
@@ -228,7 +251,7 @@ function onMouseDown(){
 }
 
 function onMouseUp() {
-        if (INTERSECTED && isMovedDown) {
+        if (INTERSECTED && isMovedDown && INTERSECTED.userData.isButton) {
         // mover o Intersected e os buttons_numbers para cima no eixo y usando 
         // Tween
         const tween = new TWEEN.Tween(INTERSECTED.position)
@@ -257,6 +280,23 @@ function onMouseMove(event: MouseEvent) {
     mouse.y = -(event.clientY / sizes.height) * 2 + 1;
 
     raycast();
+}
+
+function onONOFFChange() {
+    if(INTERSECTED.userData.isOtherObj) {
+        if(other_objs[INTERSECTED.name] == "on/off") {
+            isOn = !isOn;
+            
+            // Verifica se o objeto INTERSECTED está definido
+            if (INTERSECTED !== undefined) {
+                // Cria uma nova animação Tween para rotacionar o objeto em 20 graus no eixo x
+                const tween = new TWEEN.Tween(INTERSECTED.rotation)
+                .to({ y: INTERSECTED.rotation.y +(isOn ? 0.3  : -0.3 )}, 100) // Rotação de 20 graus em radianos
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+            }
+        }
+}
 }
 
 function onResize() {
