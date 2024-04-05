@@ -6,6 +6,9 @@ import './style.css';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {LEDs, buttons_dictionary, buttons_numbers, other_objs} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
+import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
+
+
 
 
 
@@ -13,10 +16,12 @@ import { Calculator, calculatorButtons } from "./calculator.ts";
 const calculator = new Calculator();
 
 let textColor = '#4AF626';
-// maxSize 100 - minSize 40
-let textSize = 70;
+// maxSize 100 - minSize 40 - midSize 70
+let textSize = 40;
+let isFirstStart = true;
+let sliderCounter = 0;
+let SliderDirectionValue = -0.1;
 let isOn = false
-let textFont = 'bold ' + textSize + 'px ' + "Workbench"
 let glbModelPath = './src/model6.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
@@ -25,6 +30,7 @@ let raycaster: THREE.Raycaster = new THREE.Raycaster()
 let originalMaterial: any = null;
 let INTERSECTED: any = null;
 let loader = new GLTFLoader();
+let object = null
 let scene = new THREE.Scene();
 const sizes = {
     width: window.innerWidth,
@@ -115,6 +121,7 @@ function loop() {
 
 // função para carregar o modelo 3D a partir do arquivo glb
 function loadModel(gltf: GLTF){
+    object = gltf;
         gltf.scene.traverse((child) => {
         if (buttons_dictionary[child.name]) {
             child.userData.isButton = true;
@@ -137,6 +144,7 @@ function loadModel(gltf: GLTF){
 // Raycaster para detectar a interseção do mouse com os botões da calculadora
 function raycast() {
     raycaster.setFromCamera(mouse, camera); 
+    
     const intersects = raycaster.intersectObjects(scene.children, true);
     if (intersects.length > 0) {
         const object: any = intersects[0].object;
@@ -150,14 +158,6 @@ function raycast() {
     } 
 }
 
-// Adicione um plano como chão
-// const planeGeometry = new THREE.PlaneGeometry(500, 500, 10, 10); // Largura e altura suficientemente grandes
-// const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, side: THREE.DoubleSide }); // Cor cinza para o chão
-// const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-// planeMesh.position.y = -10; // Posicione o plano abaixo do modelo 3D
-// planeMesh.rotation.x = -Math.PI / 2; // Rotacionar o plano para que fique paralelo ao eixo X
-// scene.add(planeMesh);
-
 // Função para atualizar o texto no canvas
 function updateTextOnCanvas(text: string) {
     const canvas_texture: HTMLCanvasElement = document.createElement('canvas');
@@ -166,7 +166,7 @@ function updateTextOnCanvas(text: string) {
     const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
     if (context) {
         // cor de fundo do canvas
-        context.font = textFont; // Tamanho da fonte maior
+        context.font = 'bold ' + textSize + 'px ' + "Workbench"; // Tamanho da fonte maior
         context.fillStyle = textColor; // Cor do texto
 
         // Calcula a largura do texto
@@ -221,7 +221,9 @@ function addSelectedColorEffect(object: any) {
 
 function onMouseDown(){
         onONOFFChange();
+        onSliderChange();
         if (INTERSECTED && !isMovedDown && INTERSECTED.userData.isButton) {
+        playAudio("button");
 
         const button_value: calculatorButtons = INTERSECTED.userData.value;
         calculator.buttonClick(button_value);
@@ -282,18 +284,59 @@ function onMouseMove(event: MouseEvent) {
     raycast();
 }
 
-function onONOFFChange() {
-    if(INTERSECTED.userData.isOtherObj) {
+async function onONOFFChange() {
+    if(INTERSECTED && INTERSECTED.userData && INTERSECTED.userData.isOtherObj) {
         if(other_objs[INTERSECTED.name] == "on/off") {
+            let selectedObject = INTERSECTED
+            if(isFirstStart) {
+                playAudio("carEngine");
+                await sleep(1.7);
+                isFirstStart = false;
+            } else {
+                playAudio("switch");
+            }
             isOn = !isOn;
-            
             // Verifica se o objeto INTERSECTED está definido
-            if (INTERSECTED !== undefined) {
+            if (selectedObject !== undefined) {
                 // Cria uma nova animação Tween para rotacionar o objeto em 20 graus no eixo x
-                const tween = new TWEEN.Tween(INTERSECTED.rotation)
-                .to({ y: INTERSECTED.rotation.y +(isOn ? 0.3  : -0.3 )}, 100) // Rotação de 20 graus em radianos
+                const tween = new TWEEN.Tween(selectedObject.rotation)
+                .to({ y: selectedObject.rotation.y +(isOn ? 0.3  : -0.3 )}, 100) // Rotação de 20 graus em radianos
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .start();
+            }
+        }
+}
+}
+
+ function onSliderChange() {
+    if(INTERSECTED && INTERSECTED.userData && INTERSECTED.userData.isOtherObj) {
+        if(other_objs[INTERSECTED.name] == "slider") {
+            let selectedObject = INTERSECTED
+            if (selectedObject !== undefined) {
+                if(sliderCounter == 2) {
+                    SliderDirectionValue = SliderDirectionValue * -1;
+                }
+                const finalX= selectedObject.position.x + SliderDirectionValue;
+                const tween = new TWEEN.Tween(selectedObject.position)
+                .to({ x: finalX}, 100) // Rotação de 20 graus em radianos
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+                switch(finalX) {
+                        case 0:
+                            textSize = 40;
+                            break;
+                        case -0.1:
+                            textSize = 70;
+                            break;
+                        case -0.2:
+                            textSize = 100;
+                            break;
+                    }
+                if(sliderCounter != 2) {
+                    sliderCounter++;
+                } else {
+                    sliderCounter = 1;
+                }
             }
         }
 }
@@ -310,6 +353,19 @@ function onResize() {
     renderer.setSize(sizes.width, sizes.height);
 }
 
+        function playAudio(type: "button" | "switch" | "carEngine") {
+            const file_path = {
+                button: "./src/btnsfx.mp3",
+                switch: "./src/switchsfx.mp3",
+                carEngine : "./src/carEnginesfx.mp3"
+            }
+            var audio = new Audio(file_path[type]);
+            audio.play();
+        }
+
+    function sleep(seconds: number) {
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
 
 loop();
 

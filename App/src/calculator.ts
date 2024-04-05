@@ -1,4 +1,4 @@
-export type calculatorButtons = "7" | "8" | "9" | "4" | "5" | "6" | "1" | "2" | "3" | "00" | "0" | "." | "/" | "-" | "=";
+export type calculatorButtons = "7" | "8" | "9" | "4" | "5" | "6" | "1" | "2" | "3" | "00" | "0" | "." | "/" | "-" | "=" | "C" | "CE";
 
 export class Calculator {
 
@@ -8,9 +8,15 @@ export class Calculator {
   buttonClick(button: calculatorButtons) {
     if( this.screenText !== "0") {
       if(this.screenText.length <= 10) {
+        if(button == "CE") {
+          this.clearScreen();
+        }
+        else if(button == "C") {
+          this.deleteLastChar();
+        }
         if(button == "=") {
           this.screenText = this.getResult().toString();
-        } else {
+        } else if(button != "C" && button != "CE") {
           this.screenText += button;
         }
       } else {
@@ -21,6 +27,15 @@ export class Calculator {
     }
   }
 
+  clearScreen() {
+    this.screenText = "0";
+  }
+
+  deleteLastChar() {
+    this.screenText = this.screenText.slice(0, -1);
+  }
+
+
   getScreenText() {
     return this.screenText;
   }
@@ -28,7 +43,7 @@ export class Calculator {
   setScreenText(text: string) {
     this.screenText = text;
   }
-  
+
   getResult() {
     return eval(this.screenText);
   }
