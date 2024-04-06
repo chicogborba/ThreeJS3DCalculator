@@ -66,3 +66,6 @@ export const LEDsCodes : { [key: string]: string } = {
     group1737963207: "led3" ,
 }
 
+export const paperName = "group1065846868"
+export const paperRollName = "group1325531539"
+

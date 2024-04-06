@@ -7,13 +7,13 @@ export class Calculator {
 
   buttonClick(button: calculatorButtons) {
     if( this.screenText !== "0") {
-      if(this.screenText.length <= 10) {
         if(button == "CE") {
           this.clearScreen();
         }
         else if(button == "C") {
           this.deleteLastChar();
         }
+      if(this.screenText.length <= 10) {
         if(button == "=") {
           this.screenText = this.getResult().toString();
         } else if(button != "C" && button != "CE") {
@@ -22,7 +22,7 @@ export class Calculator {
       } else {
         this.hasOverflow = true;
       }
-    } else {
+    } else if(button != "C" && button != "CE"){
       this.screenText = button
     }
   }
@@ -45,7 +45,13 @@ export class Calculator {
   }
 
   getResult() {
-    return eval(this.screenText);
+    let finalText = this.screenText.replace("x", "*");
+    let result = eval(finalText);
+    // result should only show 3 decimal places and only if it has decimal places
+    if(result % 1 != 0) {
+      return result.toFixed(3);
+    }
+    return result;
   }
 
 }

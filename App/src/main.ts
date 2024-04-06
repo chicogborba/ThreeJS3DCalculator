@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import './style.css';
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import {LEDs, buttons_dictionary, buttons_numbers, other_objs, LEDsCodes} from "./dict.ts"
+import {LEDs, buttons_dictionary, buttons_numbers, other_objs, LEDsCodes, paperName, paperRollName} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
 
 
@@ -14,10 +14,11 @@ let textColor = '#4AF626';
 // maxSize 100 - minSize 40 - midSize 70
 let textSize = 100;
 let isFirstStart = true;
+let printerCounter = 0;
 let sliderCounter = 0;
 let SliderDirectionValue = -0.1;
 let isOn = false
-let glbModelPath = './src/model8.glb';
+let glbModelPath = './src/model10.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
 let isMovedDown = false;
@@ -65,8 +66,8 @@ light.shadow.camera.near = 0.1;
 light.shadow.camera.far = 50;
 
 // Configuração da câmera
-const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 2000);
-camera.position.z = 20;
+const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 2000);
+camera.position.z = 30;
 scene.add(camera);
 
 // Renderizador
@@ -146,14 +147,16 @@ function raycast() {
     const intersects = raycaster.intersectObjects(scene.children, true);
     if (intersects.length > 0) {
         const object: any = intersects[0].object;
-        if (object.userData && (object.userData.isButton || object.userData.isOtherObj)) {
-
+        if ((object.userData && (object.userData.isButton || object.userData.isOtherObj)) || object.name == paperName) {
                 addSelectedColorEffect( object );
         } else if(INTERSECTED) {
                 INTERSECTED.material = originalMaterial;
                 INTERSECTED = null;
         }
-    } 
+    }  else if(INTERSECTED) {
+        INTERSECTED.material = originalMaterial;
+        INTERSECTED = null;
+    }
 }
 
 // Função para atualizar o texto no canvas
@@ -218,13 +221,18 @@ function addSelectedColorEffect(object: any) {
 }
 
 function onMouseDown(){
+    ripPaper();
         onONOFFChange();
         onSliderChange();
         if (INTERSECTED && !isMovedDown && INTERSECTED.userData.isButton) {
         playAudio("button");
 
         const button_value: calculatorButtons = INTERSECTED.userData.value;
-        if (button_value == "=") turnLEDOnOff("led2", true);
+        if (button_value == "=") {
+            turnLEDOnOff("led2", true);
+            increasePaperSize();
+        }
+
         calculator.buttonClick(button_value);
 
 
@@ -327,10 +335,10 @@ async function onONOFFChange() {
                             textSize = 100;
                             break;
                         case -0.1:
-                            textSize = 70;
+                            textSize = 85;
                             break;
                         case -0.2:
-                            textSize = 40;
+                            textSize = 70;
                             break;
                     }
                 if(sliderCounter != 2) {
@@ -354,11 +362,13 @@ function onResize() {
     renderer.setSize(sizes.width, sizes.height);
 }
 
-        function playAudio(type: "button" | "switch" | "carEngine") {
+        function playAudio(type: "button" | "switch" | "carEngine" | "paperRip" | "printer") {
             const file_path = {
                 button: "./src/soundEffects/btnsfx.mp3",
                 switch: "./src/soundEffects/switchsfx.mp3",
-                carEngine : "./src/soundEffects/carEnginesfx.mp3"
+                carEngine : "./src/soundEffects/carEnginesfx.mp3",
+                paperRip : "./src/soundEffects/paperRipsfx.mp3",
+                printer: "./src/soundEffects/printersfx.mp3"
             }
             var audio = new Audio(file_path[type]);
             audio.play();
@@ -383,6 +393,53 @@ function turnLEDOnOff(led: "led1" | "led2" | "led3", isOn: boolean) {
 
     }
 }
+
+function increasePaperSize() {
+    if (printerCounter < 5) {
+    let paper: any = scene.getObjectByName(paperName);
+    let paperRoll: any = scene.getObjectByName(paperRollName);
+
+    // Aumenta apenas a escala no eixo Y (altura)
+    var newScale = paper.scale.clone().setY(paper.scale.y * 1.3);
+
+    playAudio("printer");
+    
+    new TWEEN.Tween(paper.scale)
+        .to(newScale, 2000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+
+    // Rotaciona o rolo de papel no eixo X
+    var newRotationX = paperRoll.rotation.x + Math.PI / 3; // ou outro valor de rotação desejado
+    new TWEEN.Tween(paperRoll.rotation)
+        .to({x: newRotationX}, 2000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+
+    // Rotaciona o papel no eixo Y para trás
+    var newYRotation = paper.rotation.x + Math.PI / 30; // Rotação muito pequena para trás (em radianos)
+    new TWEEN.Tween(paper.rotation)
+        .to({x: newYRotation}, 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+    
+    printerCounter++;
+    } else {
+        ripPaper(true);
+        printerCounter = 0;
+    }
+}
+
+function ripPaper(dontNeedIntersected = false) {
+
+    if((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected) {
+    playAudio("paperRip");
+    let paper: any = scene.getObjectByName(paperName);
+    paper.scale.setY(1);
+    paper.rotation. x = 0;
+    }
+}
+
 
 loop();
 
