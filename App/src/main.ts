@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import './style.css';
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import {LEDs, buttons_dictionary, buttons_numbers, other_objs} from "./dict.ts"
+import {LEDs, buttons_dictionary, buttons_numbers, other_objs, LEDsCodes} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
 
 
@@ -12,12 +12,12 @@ const calculator = new Calculator();
 
 let textColor = '#4AF626';
 // maxSize 100 - minSize 40 - midSize 70
-let textSize = 40;
+let textSize = 100;
 let isFirstStart = true;
 let sliderCounter = 0;
 let SliderDirectionValue = -0.1;
 let isOn = false
-let glbModelPath = './src/model6.glb';
+let glbModelPath = './src/model8.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
 let isMovedDown = false;
@@ -39,8 +39,8 @@ let textMaterial = new THREE.MeshBasicMaterial({
     side: THREE.FrontSide,
 });
 textMaterial.transparent = true;
-let textMesh = new THREE.Mesh(new THREE.PlaneGeometry(8.8,1.2), textMaterial);
-textMesh.position.set(0, 0, -3.75);
+let textMesh = new THREE.Mesh(new THREE.PlaneGeometry(6.8,1.2), textMaterial);
+textMesh.position.set(-0.15, -0.02, -1.98);
 textMesh.rotation.x = -120.26;
 scene.add(textMesh);
 
@@ -119,7 +119,7 @@ function loop() {
 // função para carregar o modelo 3D a partir do arquivo glb
 function loadModel(gltf: GLTF){
     object = gltf;
-        gltf.scene.traverse((child) => {
+        gltf.scene.traverse((child: any) => {
         if (buttons_dictionary[child.name]) {
             child.userData.isButton = true;
             child.userData.value = buttons_dictionary[child.name];
@@ -127,14 +127,15 @@ function loadModel(gltf: GLTF){
         if(other_objs[child.name]) {
             child.userData.isOtherObj = true;
         }
-        if(LEDs[child.name]) {
-            child.userData.isLED = true;
+        if(LEDsCodes[child.name]) {
+            child.material = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x000000 });
         }
     });
     
     gltf.scene.scale.set(6, 6, 6);
     gltf.scene.rotation.y = Math.PI;
     scene.add(gltf.scene);
+
 }
 
 
@@ -158,8 +159,8 @@ function raycast() {
 // Função para atualizar o texto no canvas
 function updateTextOnCanvas(text: string) {
     const canvas_texture: HTMLCanvasElement = document.createElement('canvas');
-    canvas_texture.width = 512; // Aumente a resolução do canvas conforme necessário
-    canvas_texture.height = 156;
+    canvas_texture.width = 680; // Aumente a resolução do canvas conforme necessário
+    canvas_texture.height = 120;
     const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
     if (context) {
         // cor de fundo do canvas
@@ -173,7 +174,7 @@ function updateTextOnCanvas(text: string) {
         const x = canvas_texture.width - textWidth - 10; // 10 pixels de margem à direita
 
         // Centraliza verticalmente
-        const y = (canvas_texture.height / 2) + 40;
+        const y = (canvas_texture.height / 2) + 45;
 
         // Desenha o texto
         context.fillText(text, x, y);
@@ -223,6 +224,7 @@ function onMouseDown(){
         playAudio("button");
 
         const button_value: calculatorButtons = INTERSECTED.userData.value;
+        if (button_value == "=") turnLEDOnOff("led2", true);
         calculator.buttonClick(button_value);
 
 
@@ -251,6 +253,7 @@ function onMouseDown(){
 
 function onMouseUp() {
         if (INTERSECTED && isMovedDown && INTERSECTED.userData.isButton) {
+            turnLEDOnOff("led2", false);
         // mover o Intersected e os buttons_numbers para cima no eixo y usando 
         // Tween
         const tween = new TWEEN.Tween(INTERSECTED.position)
@@ -287,12 +290,13 @@ async function onONOFFChange() {
             let selectedObject = INTERSECTED
             if(isFirstStart) {
                 playAudio("carEngine");
-                await sleep(1.2);
+                await sleep(1.1);
                 isFirstStart = false;
             } else {
                 playAudio("switch");
             }
             isOn = !isOn;
+            turnLEDOnOff("led1", isOn);
             // Verifica se o objeto INTERSECTED está definido
             if (selectedObject !== undefined) {
                 // Cria uma nova animação Tween para rotacionar o objeto em 20 graus no eixo x
@@ -320,13 +324,13 @@ async function onONOFFChange() {
                 .start();
                 switch(finalX) {
                         case 0:
-                            textSize = 40;
+                            textSize = 100;
                             break;
                         case -0.1:
                             textSize = 70;
                             break;
                         case -0.2:
-                            textSize = 100;
+                            textSize = 40;
                             break;
                     }
                 if(sliderCounter != 2) {
@@ -352,9 +356,9 @@ function onResize() {
 
         function playAudio(type: "button" | "switch" | "carEngine") {
             const file_path = {
-                button: "./src/btnsfx.mp3",
-                switch: "./src/switchsfx.mp3",
-                carEngine : "./src/carEnginesfx.mp3"
+                button: "./src/soundEffects/btnsfx.mp3",
+                switch: "./src/soundEffects/switchsfx.mp3",
+                carEngine : "./src/soundEffects/carEnginesfx.mp3"
             }
             var audio = new Audio(file_path[type]);
             audio.play();
@@ -362,6 +366,22 @@ function onResize() {
 
     function sleep(seconds: number) {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
+
+function turnLEDOnOff(led: "led1" | "led2" | "led3", isOn: boolean) {
+    const ledColors = {
+        led3: 0xff0000,
+        led1: 0x00ff00,
+        led2: 0x00ff00
+    }
+    const ledObject: any = scene.getObjectByName(LEDs[led]);
+    if (ledObject !== undefined) {
+        // faz com que o led brilhe
+        ledObject.material.emissiveIntensity = isOn ? 1 : 0;
+        ledObject.material.emissive = new THREE.Color(isOn ? ledColors[led] : 0x000000);
+
+    }
 }
 
 loop();

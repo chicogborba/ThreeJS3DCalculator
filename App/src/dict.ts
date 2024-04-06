@@ -55,8 +55,14 @@ export const other_objs: { [key: string]: string } = {
 }
 
 export const LEDs : { [key: string]: string } = {
-    "group349876400": "red_led",
-    "group1099422973" : "first_green_led",
-    "group1737963207" : "second_green_led",
+   led1:  "group349876400",
+    led2:"group1099422973",
+    led3:"group1737963207" ,
+}
+
+export const LEDsCodes : { [key: string]: string } = {
+  group349876400:  "led1",
+    group1099422973: "led2",
+    group1737963207: "led3" ,
 }
 
