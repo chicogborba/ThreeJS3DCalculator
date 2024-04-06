@@ -6,11 +6,6 @@ import './style.css';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import {LEDs, buttons_dictionary, buttons_numbers, other_objs} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
-import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
-
-
-
-
 
 
 const calculator = new Calculator();
@@ -49,7 +44,9 @@ textMesh.position.set(0, 0, -3.75);
 textMesh.rotation.x = -120.26;
 scene.add(textMesh);
 
-scene.background = new THREE.Color(0x0e67c7);
+const spaceTexture = new THREE.TextureLoader().load('./src/space.jpg');
+spaceTexture.encoding = THREE.sRGBEncoding;
+scene.background = spaceTexture;
 loader.load(glbModelPath, loadModel);
 
 
@@ -57,7 +54,7 @@ loader.load(glbModelPath, loadModel);
 const light = new THREE.PointLight(0xffffff, 0.5, 200);
 light.position.set(0, 10, -10);
 scene.add(light)
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
 // Configuração da sombra
@@ -68,7 +65,7 @@ light.shadow.camera.near = 0.1;
 light.shadow.camera.far = 50;
 
 // Configuração da câmera
-const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 2000);
 camera.position.z = 20;
 scene.add(camera);
 
@@ -290,7 +287,7 @@ async function onONOFFChange() {
             let selectedObject = INTERSECTED
             if(isFirstStart) {
                 playAudio("carEngine");
-                await sleep(1.7);
+                await sleep(1.2);
                 isFirstStart = false;
             } else {
                 playAudio("switch");
