@@ -45,7 +45,7 @@ export class Calculator {
   }
 
   getResult() {
-    let finalText = this.screenText.replace("x", "*");
+    let finalText = this.screenText.replace("x", "*").replace("÷", "/");
     let result = eval(finalText);
     // result should only show 3 decimal places and only if it has decimal places
     if(result % 1 != 0) {
