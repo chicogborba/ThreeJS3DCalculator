@@ -15,10 +15,11 @@ let textColor = '#4AF626';
 let textSize = 100;
 let isFirstStart = true;
 let printerCounter = 0;
+let fatorEscalaPapel = 1.5;
 let sliderCounter = 0;
 let SliderDirectionValue = -0.1;
 let isOn = false
-let glbModelPath = './src/model10.glb';
+let glbModelPath = './src/model11.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
 let isMovedDown = false;
@@ -36,7 +37,7 @@ const sizes = {
 
 // Configuração da texto
 let textMaterial = new THREE.MeshBasicMaterial({
-    map: updateTextureWithText(displayText), 
+    map: updateScreenTextureWithText(displayText), 
     side: THREE.FrontSide,
 });
 textMaterial.transparent = true;
@@ -45,9 +46,8 @@ textMesh.position.set(-0.15, -0.02, -1.98);
 textMesh.rotation.x = -120.26;
 scene.add(textMesh);
 
-const spaceTexture = new THREE.TextureLoader().load('./src/space.jpg');
-spaceTexture.encoding = THREE.sRGBEncoding;
-scene.background = spaceTexture;
+
+scene.background = new THREE.Color(0x000000);
 loader.load(glbModelPath, loadModel);
 
 
@@ -55,7 +55,7 @@ loader.load(glbModelPath, loadModel);
 const light = new THREE.PointLight(0xffffff, 0.5, 200);
 light.position.set(0, 10, -10);
 scene.add(light)
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 scene.add(ambientLight);
 
 // Configuração da sombra
@@ -67,8 +67,14 @@ light.shadow.camera.far = 50;
 
 // Configuração da câmera
 const camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 2000);
-camera.position.z = 30;
+camera.position.z = 1500;
+camera.position.y = 20;
 scene.add(camera);
+
+
+// Iniciando a interação a partir do botão de iniciar
+const startButton : any  = document.getElementById("startButton")
+startButton.addEventListener("click", startInteraction);
 
 // Renderizador
 const canvas = document.querySelector('.webgl') as HTMLCanvasElement;
@@ -85,7 +91,6 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enableZoom = true;
 controls.enablePan = false;
-controls.maxPolarAngle = 0.8;
 
 
 document.addEventListener('mousemove', onMouseMove);
@@ -99,18 +104,16 @@ window.addEventListener('resize', onResize);
 
 function loop() {
     controls.update();
-    controls.maxPolarAngle = 360;
-    controls.update();
     if(isOn) {
         displayText = calculator.getScreenText();
-        textMaterial.map = updateTextureWithText(displayText);
+        textMaterial.map = updateScreenTextureWithText(displayText);
         if(displayText == "")
         calculator.setScreenText("0");
     }
     if(!isOn) {
         displayText = '';
         calculator.setScreenText(displayText);
-        textMaterial.map = updateTextureWithText(displayText);
+        textMaterial.map = updateScreenTextureWithText(displayText);
     }
     renderer.render(scene, camera);
     TWEEN.update();
@@ -160,7 +163,7 @@ function raycast() {
 }
 
 // Função para atualizar o texto no canvas
-function updateTextOnCanvas(text: string) {
+function updateTextScreenOnCanvas(text: string) {
     const canvas_texture: HTMLCanvasElement = document.createElement('canvas');
     canvas_texture.width = 680; // Aumente a resolução do canvas conforme necessário
     canvas_texture.height = 120;
@@ -186,12 +189,11 @@ function updateTextOnCanvas(text: string) {
     return canvas_texture;
 }
 
-function updateTextureWithText(text: string) {
-    const texture = new THREE.Texture(updateTextOnCanvas(text));
+function updateScreenTextureWithText(text: string) {
+    const texture = new THREE.Texture(updateTextScreenOnCanvas(text));
     texture.needsUpdate = true;
     return texture;
 }
-
 
 function addSelectedColorEffect(object: any) {
             if (INTERSECTED !== object) {
@@ -395,50 +397,94 @@ function turnLEDOnOff(led: "led1" | "led2" | "led3", isOn: boolean) {
 }
 
 function increasePaperSize() {
-    if (printerCounter < 5) {
-    let paper: any = scene.getObjectByName(paperName);
-    let paperRoll: any = scene.getObjectByName(paperRollName);
-
-    // Aumenta apenas a escala no eixo Y (altura)
-    var newScale = paper.scale.clone().setY(paper.scale.y * 1.3);
-
-    playAudio("printer");
-    
-    new TWEEN.Tween(paper.scale)
-        .to(newScale, 2000)
-        .easing(TWEEN.Easing.Quadratic.InOut)
-        .start();
-
-    // Rotaciona o rolo de papel no eixo X
-    var newRotationX = paperRoll.rotation.x + Math.PI / 3; // ou outro valor de rotação desejado
-    new TWEEN.Tween(paperRoll.rotation)
-        .to({x: newRotationX}, 2000)
-        .easing(TWEEN.Easing.Quadratic.InOut)
-        .start();
-
-    // Rotaciona o papel no eixo Y para trás
-    var newYRotation = paper.rotation.x + Math.PI / 30; // Rotação muito pequena para trás (em radianos)
-    new TWEEN.Tween(paper.rotation)
-        .to({x: newYRotation}, 1000)
-        .easing(TWEEN.Easing.Quadratic.InOut)
-        .start();
-    
-    printerCounter++;
-    } else {
-        ripPaper(true);
-        printerCounter = 0;
+    if (isOn) {
+        if (printerCounter < 5) {
+            let paper: any = scene.getObjectByName(paperName);
+            let paperRoll: any = scene.getObjectByName(paperRollName);
+            
+            
+            // Aumenta apenas a escala no eixo Y (altura)
+            console.log(fatorEscalaPapel);
+            var newScale = paper.scale.clone().setY(paper.scale.y * fatorEscalaPapel);
+            fatorEscalaPapel *= 0.92;
+            
+            playAudio("printer");
+            
+            new TWEEN.Tween(paper.scale)
+            .to(newScale, 2000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start();
+            
+            // Rotaciona o rolo de papel no eixo X
+            var newRotationX = paperRoll.rotation.x + Math.PI / 3; // ou outro valor de rotação desejado
+            new TWEEN.Tween(paperRoll.rotation)
+            .to({x: newRotationX}, 2000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start();
+            
+            // Rotaciona o papel no eixo Y para trás
+            var newYRotation = paper.rotation.x + Math.PI / 30; // Rotação muito pequena para trás (em radianos)
+            new TWEEN.Tween(paper.rotation)
+            .to({x: newYRotation}, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .start();
+            
+            
+            
+            printerCounter++;
+        } else {
+            ripPaper(true);
+            printerCounter = 0;
+            fatorEscalaPapel = 1.5;
+        }
     }
-}
+    }
 
 function ripPaper(dontNeedIntersected = false) {
 
     if((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected) {
     playAudio("paperRip");
+    printerCounter = 0;
     let paper: any = scene.getObjectByName(paperName);
     paper.scale.setY(1);
     paper.rotation. x = 0;
     }
 }
+
+
+
+function addStar() {
+    const geometry = new THREE.SphereGeometry(0.25, 24, 24);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff });
+    const star = new THREE.Mesh(geometry, material);
+
+    const [x, y, z] = Array(3).fill(0).map(() => THREE.MathUtils.randFloatSpread(1000));
+    star.position.set(x, y, z);
+    scene.add(star);
+}
+
+Array(2000).fill(0).forEach(addStar);
+
+
+
+function startInteraction() {
+    // transition of the camera starting z position 100
+    // to 30
+    const text = document.getElementById("text")
+    text?.classList.add("fadeOut");
+    setTimeout(() => {
+        text?.remove();
+    }, 1000);
+
+    const tween = new TWEEN.Tween(camera.position)
+        .to({ z: 30, y: 20 }, 1000)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start()
+
+}
+
+
+
 
 
 loop();

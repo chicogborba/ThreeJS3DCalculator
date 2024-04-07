@@ -1,3 +1,15 @@
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100px); /* Mova para cima 100px */
+    z-index: -1; /* Esconda o elemento */
+  }
+}
+
 *{
   margin: 0;
   padding: 0;
@@ -37,12 +49,61 @@ nav ul {
   gap: 4rem;
 }
 
-.title {
-  color: white;
-  z-index: 10;
+#menu {
   position: absolute;
-  font-size: 3rem;
-  left: 50%;
-  top: 75%;
-  transform: translate(-50%, -25%);
+  top: 50px; /* Ajuste conforme necessário */
+  left: 50%; /* Centralizar horizontalmente */
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 1; /* Garante que o menu fique sobre o canvas */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
 }
+
+.fadeOut {
+  animation: fadeOut 1s forwards;
+}
+
+    @media screen and (max-width: 600px) {
+      #text {
+        margin-top: 0;
+      }
+    }
+
+#title {
+  margin-bottom: 1rem;
+}
+#startButton {
+  font-size: 2rem;
+  padding: 0.5rem;
+}
+h3 {
+  font-size: 3rem;
+}
+p {
+  font-size: 1.25rem;
+}
+li {
+  font-size: 1.25rem;
+}
+.text {
+  text-align: center;
+}
+
+.textbox {
+  max-width: 500px;
+  margin-top: 4rem;
+}
+
+
+
+ul {
+  margin-left: 3rem;
+  text-align: left;
+}
+
+
+
