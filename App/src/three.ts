@@ -6,7 +6,7 @@ import './style.css';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { buttons_dictionary, buttons_numbers, other_objs, LEDsCodes, paperName, paperRollName} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
-import { addStarsToScene, controlDisplayOnOff, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updateScreenTextureWithText } from "./utils.ts";
+import { addStarsToScene, controlDisplayOnOff, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
 
 
 const calculator = new Calculator();
@@ -16,7 +16,7 @@ let textColor = '#4AF626';
 let textSize = 100;
 let isFirstStart = true;
 let printerCounter = 0;
-let fatorEscalaPapel = 1.5;
+let fatorEscalaPapel = 1.4;
 let sliderCounter = 0;
 let SliderDirectionValue = -0.1;
 let isOn = false
@@ -46,6 +46,121 @@ textMesh.position.set(-0.15, -0.02, -1.98);
 textMesh.rotation.x = -120.26;
 scene.add(textMesh);
 
+
+// let zeroPaperMaterial = new THREE.MeshStandardMaterial({ 
+//     map: updatePaperTextureWithText("zero", textSize - 30, "#fff"),
+//     side: THREE.DoubleSide,
+//  });
+
+//  let zeroPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), zeroPaperMaterial);
+//  zeroPaperMesh.position.set(-0.2, 0.8, -4.2);
+//  scene.add(zeroPaperMesh);
+
+
+
+// let firstPaperMaterial = new THREE.MeshStandardMaterial({ 
+//     map: updatePaperTextureWithText("18+18=36", textSize - 30, "#fff"),
+//     side: THREE.DoubleSide,
+//  });
+
+//  let firstPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), firstPaperMaterial);
+//  firstPaperMesh.position.set(-0.2, 1.3, -4.3);
+//  scene.add(firstPaperMesh);
+
+
+//  let secondPaperMaterial = new THREE.MeshStandardMaterial({ 
+//     map: updatePaperTextureWithText("18+18=36", textSize - 30, "#fff"),
+//     side: THREE.DoubleSide,
+//  });
+
+//  let secondPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), secondPaperMaterial);
+//  secondPaperMesh.position.set(-0.2, 1.8, -4.5);
+// secondPaperMesh.rotation.x = -0.1;
+// //  change the first paper z value to -4.5
+//  scene.add(secondPaperMesh);
+
+
+//   let thirdPaperMaterial = new THREE.MeshStandardMaterial({ 
+//     map: updatePaperTextureWithText("18+18=36", textSize - 30, "#fff"),
+//     side: THREE.DoubleSide,
+//  });
+
+//  let thirdPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), thirdPaperMaterial);
+//  thirdPaperMesh.position.set(-0.2, 2.3, -4.8);
+// thirdPaperMesh.rotation.x = -0.2;
+// //  change the first paper z value to -4.6 and second to -4.7
+//  scene.add(thirdPaperMesh);
+
+let paperTextPositions:any = {
+    0: {
+        x: -0.2,
+        y: 0.7,
+        z: -4.2,
+        rotation: 0,
+        othersZValue: {}
+    },
+    1: {
+        x: -0.2,
+        y: 1.4,
+        z: -4.3,
+        rotation: 0,
+        othersZValue: {}
+    },
+    2: {
+        x: -0.2,
+        y: 2.1,
+        z: -4.5,
+        rotation: -0.1,
+        othersZValue: {
+            first: -4.5
+        }
+    },
+    3: {
+        x: -0.2,
+        y: 2.8,
+        z: -4.8,
+        rotation: -0.2,
+        othersZValue: {
+            first: -4.6,
+            second: -4.7
+        }
+    }
+}
+
+
+let paperObjects: any = [];
+
+function addPaperObject(text: string) {
+    // Crie um novo objeto de papel
+    let newPaperMaterial = new THREE.MeshStandardMaterial({ 
+        map: updatePaperTextureWithText(text, textSize+ 20, "#2D3033"),
+        side: THREE.DoubleSide,
+    });
+
+    newPaperMaterial.transparent = true;
+
+
+     let newPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), newPaperMaterial);
+    newPaperMesh.position.set(paperTextPositions[0].x, paperTextPositions[0].y, paperTextPositions[0].z);
+
+    paperObjects.unshift(newPaperMesh);
+    scene.add(newPaperMesh);
+
+    // Atualize as posições de todos os objetos de papel
+    for (let i = 0; i < paperObjects.length; i++) {
+        let paperObject = paperObjects[i];
+        let position = paperTextPositions[i+1];
+
+        // Use TWEEN para animar a transição para a nova posição
+        new TWEEN.Tween(paperObject.position)
+            .to({ x: position.x, y: position.y, z: position.z }, 1800)
+            .start();
+
+        new TWEEN.Tween(paperObject.rotation)
+            .to({ x: position.rotation, y: 0, z: 0 }, 1800)
+            .start();
+    }
+}
 
 scene.background = new THREE.Color(0x000000);
 loader.load(glbModelPath, (gltf: GLTF) => loadModel(gltf, scene));
@@ -87,6 +202,8 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enableZoom = true;
 controls.enablePan = false;
+// max zoom out
+controls.maxDistance = 700;
 
 
 document.addEventListener('mousemove', onMouseMove);
@@ -233,12 +350,14 @@ function onButtonDown() {
         playAudio("button");
 
         const button_value: calculatorButtons = INTERSECTED.userData.value;
-        if (button_value == "=") {
+        if (button_value == "=" && isOn) {
             turnLEDOnOff("led2", true, scene);
             increasePaperSize();
+            calculator.buttonClick(button_value);
+            addPaperObject(calculator.getLastOperation());
         }
+        else calculator.buttonClick(button_value);
 
-        calculator.buttonClick(button_value);
 
 
         const button = buttons_dictionary[INTERSECTED.name];
@@ -307,7 +426,6 @@ function increasePaperSize() {
             
             
             // Aumenta apenas a escala no eixo Y (altura)
-            console.log(fatorEscalaPapel);
             var newScale = paper.scale.clone().setY(paper.scale.y * fatorEscalaPapel);
             fatorEscalaPapel *= 0.92;
             
@@ -337,8 +455,6 @@ function increasePaperSize() {
             printerCounter++;
         } else {
             ripPaper(true);
-            printerCounter = 0;
-            fatorEscalaPapel = 1.5;
         }
     }
     }
@@ -349,6 +465,12 @@ export function ripPaper(dontNeedIntersected = false) {
     if((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected) {
     playAudio("paperRip");
     printerCounter = 0;
+    fatorEscalaPapel = 1.5;
+    // clear paperObjects and remove all elements from scene
+    paperObjects.forEach((paperObject: any) => {
+        scene.remove(paperObject);
+    });
+    paperObjects = [];
     let paper: any = scene.getObjectByName(paperName);
     paper.scale.setY(1);
     paper.rotation. x = 0;

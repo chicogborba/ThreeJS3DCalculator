@@ -1,6 +1,6 @@
 **Calculadora 3D com ThreeJS**
 
-![exemplo](https://i.imgur.com/J9N4IJ5_d.webp?maxwidth=1520&fidelity=grand)
+![exemplo](https://i.imgur.com/qiBY3KM_d.webp?maxwidth=1520&fidelity=grand)
 
 Este é um projeto de uma calculadora 3D desenvolvida utilizando ThreeJS, uma biblioteca JavaScript que permite a criação e renderização de gráficos 3D em um navegador web de forma fácil e eficiente. O modelo 3D utilizado não é de minha autoria, foi pelo Bruno Oliveira e podendo ser encontrado em https://poly.pizza/m/e9TwpsTfktd
 

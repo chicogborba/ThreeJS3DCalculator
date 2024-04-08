@@ -4,6 +4,7 @@ export class Calculator {
 
   private screenText: string = "0";
   private hasOverflow: boolean = false;
+  private lastOperation: string = "";
 
   buttonClick(button: calculatorButtons) {
     if( this.screenText !== "0") {
@@ -49,9 +50,14 @@ export class Calculator {
     let result = eval(finalText);
     // result should only show 3 decimal places and only if it has decimal places
     if(result % 1 != 0) {
-      return result.toFixed(3);
+      result = result.toFixed(3);
     }
+    this.lastOperation = this.screenText + " = " + result;
     return result;
+  }
+
+  getLastOperation() {
+    return this.lastOperation;
   }
 
 }

@@ -94,6 +94,39 @@ export function updateScreenTextureWithText(text: string , textSize:number, text
     return texture;
 }
 
+// Função para atualizar o texto no canvas
+ function updatePaperScreenOnCanvas(text: string,textSize:number,textColor:string ) {
+    const canvas_texture: HTMLCanvasElement = document.createElement('canvas');
+    canvas_texture.width = 680; // Aumente a resolução do canvas conforme necessário
+    canvas_texture.height = 120;
+    const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
+    if (context) {
+        // cor de fundo do canvas
+        context.font = 'bold ' + textSize + 'px ' + "VT323"; // Tamanho da fonte maior
+        context.fillStyle = textColor; // Cor do texto
+
+        // Calcula a largura do texto
+        const textWidth = context.measureText(text).width;
+
+        // Define a posição x para alinhar o texto à direita do canvas
+        const x = canvas_texture.width - textWidth - 10; // 10 pixels de margem à direita
+
+        // Centraliza verticalmente
+        const y = (canvas_texture.height / 2) + 45;
+
+        // Desenha o texto
+        context.fillText(text, x, y);
+    }
+
+    return canvas_texture;
+}
+
+export function updatePaperTextureWithText(text: string , textSize:number, textColor:string) {
+    const texture = new THREE.Texture(updatePaperScreenOnCanvas(text,textSize,textColor));
+    texture.needsUpdate = true;
+    return texture;
+}
+
 
 // função para carregar o modelo 3D a partir do arquivo glb
 export function loadModel(gltf: GLTF, scene: any){
