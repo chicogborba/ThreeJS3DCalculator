@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import './style.css';
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { buttons_dictionary, buttons_numbers, other_objs, LEDsCodes, paperName, paperRollName} from "./dict.ts"
+import { buttons_dictionary, buttons_numbers, other_objs, paperName, paperRollName} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
 import { addStarsToScene, controlDisplayOnOff, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
 
@@ -305,6 +305,7 @@ async function onONOFFChange() {
             // Verifica se o objeto INTERSECTED está definido
             if (selectedObject !== undefined) {
                 // Cria uma nova animação Tween para rotacionar o objeto em 20 graus no eixo x
+                // @ts-ignore
                 const tween = new TWEEN.Tween(selectedObject.rotation)
                 .to({ y: selectedObject.rotation.y +(isOn ? 0.3  : -0.3 )}, 100) // Rotação de 20 graus em radianos
                 .easing(TWEEN.Easing.Quadratic.Out)
@@ -323,6 +324,7 @@ async function onONOFFChange() {
                     SliderDirectionValue = SliderDirectionValue * -1;
                 }
                 const finalX= selectedObject.position.x + SliderDirectionValue;
+                // @ts-ignore
                 const tween = new TWEEN.Tween(selectedObject.position)
                 .to({ x: finalX}, 100) // Rotação de 20 graus em radianos
                 .easing(TWEEN.Easing.Quadratic.Out)
@@ -366,6 +368,7 @@ function onButtonDown() {
         const button = buttons_dictionary[INTERSECTED.name];
         // mover o Intersected e os buttons_numbers para baixo no eixo y usando 
         // Tween
+        // @ts-ignore
         const tween = new TWEEN.Tween(INTERSECTED.position)
             .to({ y: - 0.05 }, 100)
             .easing(TWEEN.Easing.Quadratic.Out)
@@ -374,6 +377,7 @@ function onButtonDown() {
         const buttons = buttons_numbers[button];
         buttons.forEach((button) => {
             const object: any = scene.getObjectByName(button);
+                // @ts-ignore
             const tween = new TWEEN.Tween(object.position)
                 .to({ y: - 0.05 }, 100)
                 .easing(TWEEN.Easing.Quadratic.Out)
@@ -391,6 +395,7 @@ function onButtonUp() {
             turnLEDOnOff("led2", false, scene);
         // mover o Intersected e os buttons_numbers para cima no eixo y usando 
         // Tween
+                // @ts-ignore
         const tween = new TWEEN.Tween(INTERSECTED.position)
             .to({ y: 0 }, 100)
             .easing(TWEEN.Easing.Quadratic.Out)
@@ -400,6 +405,7 @@ function onButtonUp() {
         const buttons = buttons_numbers[button];
         buttons.forEach((button) => {
             const object: any = scene.getObjectByName(button);
+                // @ts-ignore
             const tween = new TWEEN.Tween(object.position)
                 .to({ y: 0 }, 100)
                 .easing(TWEEN.Easing.Quadratic.Out)

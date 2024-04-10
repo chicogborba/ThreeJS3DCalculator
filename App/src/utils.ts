@@ -1,6 +1,6 @@
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { LEDs, LEDsCodes, buttons_dictionary, other_objs, paperName } from "./dict";
-import { INTERSECTED, camera, renderer, sizes } from "./three";
+import { LEDs, LEDsCodes, buttons_dictionary, other_objs } from "./dict";
+import {  camera, renderer, sizes } from "./three";
 import * as THREE from 'three';
 
 

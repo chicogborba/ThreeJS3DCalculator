@@ -17,6 +17,7 @@ export function startInteraction( ) {
 
     }, 1000);
 
+                // @ts-ignore
     const tween = new TWEEN.Tween(camera.position)
         .to({ z: 30, y: 20 }, 1000)
         .easing(TWEEN.Easing.Quadratic.Out)
