@@ -10,6 +10,7 @@
   }
 }
 
+
 *{
   margin: 0;
   padding: 0;
@@ -49,14 +50,19 @@ nav ul {
   gap: 4rem;
 }
 
+.main {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+}
+
 #menu {
   position: absolute;
-  top: 50px; /* Ajuste conforme necessário */
-  left: 50%; /* Centralizar horizontalmente */
-  transform: translateX(-50%);
   text-align: center;
   z-index: 1; /* Garante que o menu fique sobre o canvas */
-
+  margin-left: 1.2rem;
+  margin-right: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,9 +74,12 @@ nav ul {
 }
 
     @media screen and (max-width: 600px) {
-      #text {
-        margin-top: 0;
+      /* #text {
+        scale: 0.7;
       }
+      .textbox {
+        margin-top: 0.5rem;
+      } */
     }
 
 #title {

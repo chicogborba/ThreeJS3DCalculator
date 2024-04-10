@@ -9,9 +9,12 @@ export function startInteraction( ) {
     // transition of the camera starting z position 100
     // to 30
     const text = document.getElementById("text")
+    const main = document.getElementById("main")
     text?.classList.add("fadeOut");
     setTimeout(() => {
         text?.remove();
+        main?.remove();
+
     }, 1000);
 
     const tween = new TWEEN.Tween(camera.position)

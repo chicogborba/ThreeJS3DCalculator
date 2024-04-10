@@ -9,6 +9,9 @@ import { Calculator, calculatorButtons } from "./calculator.ts";
 import { addStarsToScene, controlDisplayOnOff, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
 
 
+
+
+
 const calculator = new Calculator();
 
 let textColor = '#4AF626';
