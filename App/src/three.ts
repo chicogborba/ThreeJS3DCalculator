@@ -39,7 +39,6 @@ export const sizes = {
 }
 
 
-console.log("ASLKDJASKLDJASKLDJASKLJKLASDJAKLSDJASKLDJASKLDJASKLD")
 
 // Configuração da texto
 let textMaterial = new THREE.MeshBasicMaterial({

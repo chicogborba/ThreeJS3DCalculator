@@ -77,9 +77,10 @@ nav ul {
       /* #text {
         scale: 0.7;
       }
+      */
       .textbox {
-        margin-top: 0.5rem;
-      } */
+        margin-top: 1rem !important;
+      } 
     }
 
 #title {
