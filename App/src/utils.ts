@@ -12,6 +12,7 @@ import * as THREE from 'three';
  * @param quantity define a quantidade de pontos a serem adicionados
  * @param spread define o espaço que os pontos ocuparão
  */
+// @ts-ignore
 export function addStarsToScene(quantity: number, spread: number = 1000, scene: any) {
     for (let i = 0; i < quantity; i++) {
     const geometry = new THREE.SphereGeometry(0.25, 24, 24);

@@ -3,7 +3,6 @@ export type calculatorButtons = "7" | "8" | "9" | "4" | "5" | "6" | "1" | "2" | 
 export class Calculator {
 
   private screenText: string = "0";
-  private hasOverflow: boolean = false;
   private lastOperation: string = "";
 
   buttonClick(button: calculatorButtons) {
@@ -20,9 +19,7 @@ export class Calculator {
         } else if(button != "C" && button != "CE") {
           this.screenText += button;
         }
-      } else {
-        this.hasOverflow = true;
-      }
+      } 
     } else if(button != "C" && button != "CE"){
       this.screenText = button
     }
