@@ -2,6 +2,7 @@ import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // 
 import TWEEN from '@tweenjs/tween.js'
 import * as THREE from 'three';
 import './style.css';
+
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { buttons_dictionary, buttons_numbers, other_objs, paperName, paperRollName} from "./dict.ts"
@@ -23,7 +24,7 @@ let fatorEscalaPapel = 1.4;
 let sliderCounter = 0;
 let SliderDirectionValue = -0.1;
 let isOn = false
-let glbModelPath = './src/calculator3.glb';
+let glbModelPath = '/calculator3.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
 let isMovedDown = false;
