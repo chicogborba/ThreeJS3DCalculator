@@ -6,40 +6,48 @@ export class Calculator {
   private lastOperation: string = "";
 
   buttonClick(button: calculatorButtons) {
-    if( this.screenText !== "0") {
+    if(!((this.screenText.charAt(this.screenText.length - 1) && 
+    ['+', '-', '*', '/'].includes(this.screenText.charAt(this.screenText.length - 1)))
+    && ['+', '-', '*', '/'].includes(button))
+    ) {
+      if(this.screenText == "Infinity" || this.screenText == "NaN" || this.screenText == "error") {
+        this.clearScreen();
+      }
+      if( this.screenText !== "0") {
         if(button == "CE") {
           this.clearScreen();
         }
         else if(button == "C") {
           this.deleteLastChar();
         }
-      if(this.screenText.length <= 10) {
-        if(button == "=") {
-          this.screenText = this.getResult().toString();
-        } else if(button != "C" && button != "CE") {
-          this.screenText += button;
-        }
-      } 
-    } else if(button != "C" && button != "CE"){
-      this.screenText = button
+        if(this.screenText.length <= 10) {
+          if(button == "=") {
+            this.screenText = this.getResult().toString();
+          } else if(button != "C" && button != "CE") {
+            this.screenText += button;
+          }
+        } 
+      } else if(button != "C" && button != "CE"){
+        this.screenText = button
+      }
     }
-  }
-
-  clearScreen() {
-    this.screenText = "0";
-  }
-
-  deleteLastChar() {
-    this.screenText = this.screenText.slice(0, -1);
-  }
-
-
-  getScreenText() {
-    return this.screenText;
-  }
-
-  setScreenText(text: string) {
-    this.screenText = text;
+    }
+    
+    clearScreen() {
+      this.screenText = "0";
+    }
+    
+    deleteLastChar() {
+      this.screenText = this.screenText.slice(0, -1);
+    }
+    
+    
+    getScreenText() {
+      return this.screenText;
+    }
+    
+    setScreenText(text: string) {
+      this.screenText = text;
   }
 
   getResult() {

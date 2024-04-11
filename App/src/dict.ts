@@ -69,3 +69,39 @@ export const LEDsCodes : { [key: string]: string } = {
 export const paperName = "group1065846868"
 export const paperRollName = "group1325531539"
 
+
+export let paperTextPositions:any = {
+    0: {
+        x: -0.2,
+        y: 0.7,
+        z: -4.2,
+        rotation: 0,
+        othersZValue: {}
+    },
+    1: {
+        x: -0.2,
+        y: 1.4,
+        z: -4.3,
+        rotation: 0,
+        othersZValue: {}
+    },
+    2: {
+        x: -0.2,
+        y: 2.1,
+        z: -4.5,
+        rotation: -0.1,
+        othersZValue: {
+            first: -4.5
+        }
+    },
+    3: {
+        x: -0.2,
+        y: 2.8,
+        z: -4.8,
+        rotation: -0.2,
+        othersZValue: {
+            first: -4.6,
+            second: -4.7
+        }
+    }
+}

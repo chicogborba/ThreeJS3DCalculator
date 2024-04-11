@@ -5,18 +5,15 @@ import './style.css';
 
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { buttons_dictionary, buttons_numbers, other_objs, paperName, paperRollName} from "./dict.ts"
+import { buttons_dictionary, buttons_numbers, other_objs, paperName, paperRollName, paperTextPositions} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
 import { addStarsToScene, controlDisplayOnOff, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
-
-
 
 
 
 const calculator = new Calculator();
 
 let textColor = '#4AF626';
-// maxSize 100 - minSize 40 - midSize 70
 let textSize = 100;
 let isFirstStart = true;
 let printerCounter = 0;
@@ -52,90 +49,10 @@ textMesh.rotation.x = -120.26;
 scene.add(textMesh);
 
 
-// let zeroPaperMaterial = new THREE.MeshStandardMaterial({ 
-//     map: updatePaperTextureWithText("zero", textSize - 30, "#fff"),
-//     side: THREE.DoubleSide,
-//  });
-
-//  let zeroPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), zeroPaperMaterial);
-//  zeroPaperMesh.position.set(-0.2, 0.8, -4.2);
-//  scene.add(zeroPaperMesh);
-
-
-
-// let firstPaperMaterial = new THREE.MeshStandardMaterial({ 
-//     map: updatePaperTextureWithText("18+18=36", textSize - 30, "#fff"),
-//     side: THREE.DoubleSide,
-//  });
-
-//  let firstPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), firstPaperMaterial);
-//  firstPaperMesh.position.set(-0.2, 1.3, -4.3);
-//  scene.add(firstPaperMesh);
-
-
-//  let secondPaperMaterial = new THREE.MeshStandardMaterial({ 
-//     map: updatePaperTextureWithText("18+18=36", textSize - 30, "#fff"),
-//     side: THREE.DoubleSide,
-//  });
-
-//  let secondPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), secondPaperMaterial);
-//  secondPaperMesh.position.set(-0.2, 1.8, -4.5);
-// secondPaperMesh.rotation.x = -0.1;
-// //  change the first paper z value to -4.5
-//  scene.add(secondPaperMesh);
-
-
-//   let thirdPaperMaterial = new THREE.MeshStandardMaterial({ 
-//     map: updatePaperTextureWithText("18+18=36", textSize - 30, "#fff"),
-//     side: THREE.DoubleSide,
-//  });
-
-//  let thirdPaperMesh = new THREE.Mesh(new THREE.PlaneGeometry(3,0.5), thirdPaperMaterial);
-//  thirdPaperMesh.position.set(-0.2, 2.3, -4.8);
-// thirdPaperMesh.rotation.x = -0.2;
-// //  change the first paper z value to -4.6 and second to -4.7
-//  scene.add(thirdPaperMesh);
-
-let paperTextPositions:any = {
-    0: {
-        x: -0.2,
-        y: 0.7,
-        z: -4.2,
-        rotation: 0,
-        othersZValue: {}
-    },
-    1: {
-        x: -0.2,
-        y: 1.4,
-        z: -4.3,
-        rotation: 0,
-        othersZValue: {}
-    },
-    2: {
-        x: -0.2,
-        y: 2.1,
-        z: -4.5,
-        rotation: -0.1,
-        othersZValue: {
-            first: -4.5
-        }
-    },
-    3: {
-        x: -0.2,
-        y: 2.8,
-        z: -4.8,
-        rotation: -0.2,
-        othersZValue: {
-            first: -4.6,
-            second: -4.7
-        }
-    }
-}
-
-
 let paperObjects: any = [];
 
 function addPaperObject(text: string) {
+    if (printerCounter <= 3 && isOn) {
     // Crie um novo objeto de papel
     let newPaperMaterial = new THREE.MeshStandardMaterial({ 
         map: updatePaperTextureWithText(text, textSize+ 20, "#2D3033"),
@@ -156,6 +73,29 @@ function addPaperObject(text: string) {
         let paperObject = paperObjects[i];
         let position = paperTextPositions[i+1];
 
+        // if printerCounter is 2 change the first paper z value to -4.5
+        if (printerCounter == 2 && i == 0) {
+            position = {
+                ...position,
+                z: -4.45
+            }
+
+        }
+
+        if (printerCounter == 3 && i == 0) {
+            position = {
+                ...position,
+                z: -4.6
+            }
+        }
+
+        if (printerCounter == 3 && i == 1) {
+            position = {
+                ...position,
+                z: -4.7
+            }
+        }
+
         // Use TWEEN para animar a transição para a nova posição
         new TWEEN.Tween(paperObject.position)
             .to({ x: position.x, y: position.y, z: position.z }, 1800)
@@ -165,6 +105,7 @@ function addPaperObject(text: string) {
             .to({ x: position.rotation, y: 0, z: 0 }, 1800)
             .start();
     }
+}
 }
 
 scene.background = new THREE.Color(0x000000);
@@ -276,7 +217,7 @@ function addSelectedColorEffect(object: any) {
 }
 
 function onMouseDown(){
-        ripPaper();
+        ripPaper();        
         onONOFFChange();
         onSliderChange();
         onButtonDown();
@@ -431,7 +372,9 @@ function updateMousePosition(event: MouseEvent) {
 
 function increasePaperSize() {
     if (isOn) {
-        if (printerCounter < 5) {
+        if (printerCounter >= 3) {
+            ripPaper(true);
+        }
             let paper: any = scene.getObjectByName(paperName);
             let paperRoll: any = scene.getObjectByName(paperRollName);
             
@@ -460,20 +403,14 @@ function increasePaperSize() {
             .to({x: newYRotation}, 1000)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .start();
-            
-            
-            
+
             printerCounter++;
-        } else {
-            ripPaper(true);
-        }
     }
     }
 
 
 export function ripPaper(dontNeedIntersected = false) {
-
-    if((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected) {
+    if(((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected) && printerCounter > 0) {
     playAudio("paperRip");
     printerCounter = 0;
     fatorEscalaPapel = 1.5;

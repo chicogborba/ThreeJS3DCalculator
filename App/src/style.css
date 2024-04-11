@@ -75,6 +75,7 @@ nav ul {
     @media screen and (max-width: 600px) {
       #text {
         scale: 0.8;
+        margin-top: -1rem;
       }
      
       .textbox {

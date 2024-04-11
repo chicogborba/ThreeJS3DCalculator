@@ -166,6 +166,7 @@ export function controlDisplayOnOff(isOn: boolean, calculator: any, textMaterial
 }
 
 
+
 // ------------------------- GENERAL FUNCTIONS -------------------------
 
   /** 
