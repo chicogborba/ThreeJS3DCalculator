@@ -150,7 +150,6 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(2);
-renderer.render(scene, camera);
 
 
 // Configurando controles orbitais
