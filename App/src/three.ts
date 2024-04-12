@@ -7,7 +7,7 @@ import './style.css';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { buttons_dictionary, buttons_numbers, other_objs, paperName, paperRollName, paperTextPositions} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
-import { addStarsToScene, controlDisplayOnOff, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
+import { addStarsToScene, controlDisplayOnOff, disableLoading, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
 
 
 
@@ -114,7 +114,7 @@ function addPaperObject(text: string) {
 }
 
 scene.background = new THREE.Color(0x000000);
-loader.load(glbModelPath, (gltf: GLTF) => loadModel(gltf, scene));
+loader.load(glbModelPath, (gltf: GLTF) => loadModel(gltf, scene), disableLoading);
 
 
 // Configuração da luz

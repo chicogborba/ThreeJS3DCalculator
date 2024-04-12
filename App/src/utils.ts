@@ -131,6 +131,7 @@ export function updatePaperTextureWithText(text: string , textSize:number, textC
 
 // função para carregar o modelo 3D a partir do arquivo glb
 export function loadModel(gltf: GLTF, scene: any){
+
         gltf.scene.traverse((child: any) => {
         if (buttons_dictionary[child.name]) {
             child.userData.isButton = true;
@@ -142,7 +143,8 @@ export function loadModel(gltf: GLTF, scene: any){
         if(LEDsCodes[child.name]) {
             child.material = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x000000 });
         }
-    });
+    }
+    );
     
     gltf.scene.scale.set(6, 6, 6);
     gltf.scene.rotation.y = Math.PI;
@@ -191,6 +193,17 @@ export function controlDisplayOnOff(isOn: boolean, calculator: any, textMaterial
 */
    export function sleep(seconds: number) {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
+
+export function disableLoading() {
+    let loading = document.getElementById("loading");
+    let startButton = document.getElementById("startButton");
+
+    if(loading && startButton) {
+        loading.style.display = 'none';
+        startButton.style.display = 'initial';
+    }
 }
 
 
