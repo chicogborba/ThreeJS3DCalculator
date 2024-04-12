@@ -53,10 +53,14 @@ scene.add(textMesh);
 let paperObjects: any = [];
 
 function addPaperObject(text: string) {
-    if(text.length >= 14) {
+    if(text.length >= calculator.getTextLimit() + 3) {
         // split on the =
         let splitText = text.split("=");
-        text = "...=" + splitText[1];
+        if(splitText[1].length <= calculator.getTextLimit()) {
+            text = "...=" + splitText[1];
+        } else {
+            text = "Result too long";
+        }
     }
     if (printerCounter <= 3 && isOn) {
     // Crie um novo objeto de papel

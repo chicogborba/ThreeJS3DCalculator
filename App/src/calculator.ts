@@ -86,4 +86,8 @@ export class Calculator {
     return this.lastOperation;
   }
 
+  getTextLimit() {
+    return this.textLimit;
+  }
+
 }

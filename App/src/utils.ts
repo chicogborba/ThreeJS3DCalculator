@@ -103,7 +103,7 @@ export function updateScreenTextureWithText(text: string , textSize:number, text
     const context: CanvasRenderingContext2D | null = canvas_texture.getContext('2d');
     if (context) {
         // cor de fundo do canvas
-        context.font = 'bold ' + textSize + 'px ' + "VT323"; // Tamanho da fonte maior
+        context.font = 'bold ' + textSize + 'px ' + "Workbench"; // Tamanho da fonte maior
         context.fillStyle = textColor; // Cor do texto
 
         // Calcula a largura do texto
@@ -123,7 +123,7 @@ export function updateScreenTextureWithText(text: string , textSize:number, text
 }
 
 export function updatePaperTextureWithText(text: string , textSize:number, textColor:string) {
-    const texture = new THREE.Texture(updatePaperScreenOnCanvas(text,textSize,textColor));
+    const texture = new THREE.Texture(updatePaperScreenOnCanvas(text,textSize- 25,textColor));
     texture.needsUpdate = true;
     return texture;
 }
