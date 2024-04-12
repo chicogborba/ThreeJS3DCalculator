@@ -1,5 +1,5 @@
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Importe o GLTFLoader a partir do local correto
-import TWEEN, { add } from '@tweenjs/tween.js'
+import TWEEN from '@tweenjs/tween.js'
 import * as THREE from 'three';
 import './style.css';
 
