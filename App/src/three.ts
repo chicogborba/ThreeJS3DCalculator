@@ -1,5 +1,5 @@
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'; // Importe o GLTFLoader a partir do local correto
-import TWEEN from '@tweenjs/tween.js'
+import TWEEN, { add } from '@tweenjs/tween.js'
 import * as THREE from 'three';
 import './style.css';
 
@@ -52,6 +52,11 @@ scene.add(textMesh);
 let paperObjects: any = [];
 
 function addPaperObject(text: string) {
+    if(text.length >= 14) {
+        // split on the =
+        let splitText = text.split("=");
+        text = "...=" + splitText[1];
+    }
     if (printerCounter <= 3 && isOn) {
     // Crie um novo objeto de papel
     let newPaperMaterial = new THREE.MeshStandardMaterial({ 
@@ -272,15 +277,19 @@ async function onONOFFChange() {
                 .to({ x: finalX}, 100) // Rotação de 20 graus em radianos
                 .easing(TWEEN.Easing.Quadratic.Out)
                 .start();
+                calculator.clearScreen();
                 switch(finalX) {
                         case 0:
                             textSize = 100;
+                            calculator.setTextLimit(11);
                             break;
                         case -0.1:
                             textSize = 85;
+                            calculator.setTextLimit(14);
                             break;
                         case -0.2:
                             textSize = 70;
+                            calculator.setTextLimit(17);
                             break;
                     }
                 if(sliderCounter != 2) {
@@ -410,7 +419,7 @@ function increasePaperSize() {
 
 
 export function ripPaper(dontNeedIntersected = false) {
-    if(((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected) && printerCounter > 0) {
+    if(((INTERSECTED && INTERSECTED.name == paperName) || dontNeedIntersected)) {
     playAudio("paperRip");
     printerCounter = 0;
     fatorEscalaPapel = 1.5;

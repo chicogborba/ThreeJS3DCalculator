@@ -175,11 +175,11 @@ export function controlDisplayOnOff(isOn: boolean, calculator: any, textMaterial
   */
   export function playAudio(type: "button" | "switch" | "carEngine" | "paperRip" | "printer") {
       const file_path = {
-          button: "./src/soundEffects/btnsfx.mp3",
-          switch: "./src/soundEffects/switchsfx.mp3",
-          carEngine : "./src/soundEffects/carEnginesfx.mp3",
-          paperRip : "./src/soundEffects/paperRipsfx.mp3",
-          printer: "./src/soundEffects/printersfx.mp3"
+          button: "/soundEffects/btnsfx.mp3",
+          switch: "/soundEffects/switchsfx.mp3",
+          carEngine : "/soundEffects/carEnginesfx.mp3",
+          paperRip : "/soundEffects/paperRipsfx.mp3",
+          printer: "/soundEffects/printersfx.mp3"
       }
       var audio = new Audio(file_path[type]);
       audio.play();

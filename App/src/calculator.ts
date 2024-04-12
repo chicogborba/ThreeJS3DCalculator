@@ -4,11 +4,12 @@ export class Calculator {
 
   private screenText: string = "0";
   private lastOperation: string = "";
+  private textLimit: number = 11;
 
   buttonClick(button: calculatorButtons) {
     if(!((this.screenText.charAt(this.screenText.length - 1) && 
-    ['+', '-', '*', '/'].includes(this.screenText.charAt(this.screenText.length - 1)))
-    && ['+', '-', '*', '/'].includes(button))
+    ['+', '-', 'x', '÷', "=", "."].includes(this.screenText.charAt(this.screenText.length - 1)))
+    && ['+', '-', 'x', '÷', "=", "."].includes(button))
     ) {
       if(this.screenText == "Infinity" || this.screenText == "NaN" || this.screenText == "error") {
         this.clearScreen();
@@ -20,10 +21,11 @@ export class Calculator {
         else if(button == "C") {
           this.deleteLastChar();
         }
-        if(this.screenText.length <= 10) {
-          if(button == "=") {
-            this.screenText = this.getResult().toString();
-          } else if(button != "C" && button != "CE") {
+        if(button == "=") {
+          this.screenText = this.getResult().toString();
+        }
+        if(this.screenText.length <= this.textLimit) {
+           if(button != "C" && button != "CE" && button != "=") {
             this.screenText += button;
           }
         } 
@@ -50,6 +52,10 @@ export class Calculator {
       this.screenText = text;
   }
 
+  setTextLimit(limit: number) {
+    this.textLimit = limit;
+  }
+
   getResult() {
     let finalText = this.screenText.replace("x", "*").replace("÷", "/");
     let result = eval(finalText);
@@ -57,7 +63,7 @@ export class Calculator {
     if(result % 1 != 0) {
       result = result.toFixed(3);
     }
-    this.lastOperation = this.screenText + " = " + result;
+    this.lastOperation = this.screenText + "=" + result;
     return result;
   }
 
