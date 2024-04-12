@@ -5,7 +5,7 @@ import './style.css';
 
 //@ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { buttons_dictionary, buttons_numbers, other_objs, paperName, paperRollName, paperTextPositions} from "./dict.ts"
+import { buttons_dictionary, buttons_numbers, inverted_buttons_dictionary, inverted_buttons_numbers, other_objs, paperName, paperRollName, paperTextPositions} from "./dict.ts"
 import { Calculator, calculatorButtons } from "./calculator.ts";
 import { addStarsToScene, controlDisplayOnOff, disableLoading, loadModel, onResize, playAudio, sleep, turnLEDOnOff, updatePaperTextureWithText, updateScreenTextureWithText } from "./utils.ts";
 
@@ -21,6 +21,7 @@ let fatorEscalaPapel = 1.4;
 let sliderCounter = 0;
 let SliderDirectionValue = -0.1;
 let isOn = false
+let printing = false;
 let glbModelPath = '/calculator3.glb';
 let displayText = '';
 let mouse: THREE.Vector2 = new THREE.Vector2();
@@ -181,7 +182,12 @@ function raycast() {
     
     const intersects = raycaster.intersectObjects(scene.children, true);
     if (intersects.length > 0) {
-        const object: any = intersects[0].object;
+        let object: any = intersects[0].object;
+        if(inverted_buttons_numbers[object.name]) {
+           object = scene.getObjectByName(inverted_buttons_dictionary[inverted_buttons_numbers[object.name]]);
+        
+
+        }
         if ((object.userData && (object.userData.isButton || object.userData.isOtherObj)) || object.name == paperName) {
                 addSelectedColorEffect( object );
         } else if(INTERSECTED) {
@@ -308,12 +314,13 @@ function onButtonDown() {
 
         const button_value: calculatorButtons = INTERSECTED.userData.value;
         if (button_value == "=" && isOn) {
-            turnLEDOnOff("led2", true, scene);
-            increasePaperSize();
-            calculator.buttonClick(button_value);
-            addPaperObject(calculator.getLastOperation());
+            calculator.buttonClick(button_value, scene);
+            if (!printing) {
+                increasePaperSize();
+                addPaperObject(calculator.getLastOperation());
+            }
         }
-        else calculator.buttonClick(button_value);
+        else calculator.buttonClick(button_value, scene);
 
 
 
@@ -344,7 +351,6 @@ function onButtonDown() {
 
 function onButtonUp() { 
           if (INTERSECTED && isMovedDown && INTERSECTED.userData.isButton) {
-            turnLEDOnOff("led2", false, scene);
         // mover o Intersected e os buttons_numbers para cima no eixo y usando 
         // Tween
                 // @ts-ignore
@@ -381,6 +387,8 @@ function updateMousePosition(event: MouseEvent) {
 
 function increasePaperSize() {
     if (isOn) {
+        printing = true;
+        turnLEDOnOff("led2", true, scene);
         if (printerCounter >= 3) {
             ripPaper(true);
         }
@@ -414,6 +422,10 @@ function increasePaperSize() {
             .start();
 
             printerCounter++;
+            setTimeout(() => {
+                printing = false;
+                turnLEDOnOff("led2", false, scene);
+            }, 2000);
     }
     }
 

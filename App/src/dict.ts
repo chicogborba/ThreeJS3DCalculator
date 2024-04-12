@@ -22,6 +22,14 @@ export const buttons_dictionary: { [key: string]: string }  = {
     "group389477461002": "CE",
 }
 
+export const inverted_buttons_dictionary: {[key: string]: string}  = {};
+
+for (const key in buttons_dictionary) {
+    const value = buttons_dictionary[key];
+    inverted_buttons_dictionary[value] = key;
+}
+
+
 // Dicionario para mapear os numeros em cima dos botões
 // dentro do modelo 3D
 export const buttons_numbers: { [key: string]: Array<string> } = {
@@ -45,6 +53,15 @@ export const buttons_numbers: { [key: string]: Array<string> } = {
     "C": ["group1011208216003", "group901693912007", "group901693912006"],
     "CE": ["group1011208216001", "group901693912001", "group901693912002", "group1011208216002", "group901693912003", "group901693912005", "group901693912004"],
 };
+
+export const inverted_buttons_numbers: {[key: string]: string}  = {};
+
+for (const key in buttons_numbers) {
+    const values = buttons_numbers[key];
+    values.forEach(value => {
+        inverted_buttons_numbers[value] = key;
+    });
+}
 
 
 // other components of the calculator with animations and functionalities
