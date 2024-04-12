@@ -388,6 +388,7 @@ function updateMousePosition(event: MouseEvent) {
 
 
 
+// Aumenta o tamanho do papel
 function increasePaperSize() {
     if (isOn) {
         printing = true;
